@@ -278,7 +278,7 @@ Safe travels!
                 </div>
 
                 {/* Table */}
-                <div className="overflow-visible">
+                <div className="overflow-x-auto">
                     <table className="min-w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/50">
@@ -343,7 +343,7 @@ Safe travels!
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleWhatsAppShare(b)}
-                                                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-lg"
+                                                    className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-lg transition-colors"
                                                     title="Send details to passenger"
                                                 >
                                                     <MessageCircle className="w-5 h-5" />
