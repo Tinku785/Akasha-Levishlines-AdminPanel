@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Save, X, User, Phone, MapPin, Calendar, Armchair, Clock, Printer } from 'lucide-react';
+import { CheckCircle, Save, X, User, Phone, MapPin, Calendar, Armchair, Clock, Printer, MessageCircle, PlusCircle } from 'lucide-react';
 
 const NewBooking = ({ onAddBooking }) => {
     const navigate = useNavigate();
@@ -71,21 +71,48 @@ const NewBooking = ({ onAddBooking }) => {
             arrival: format12h(formData.arrival)
         };
 
+
         try {
             const newId = onAddBooking ? await onAddBooking(finalData) : `BK${Math.floor(Math.random() * 1000)}`;
             setSuccessId(newId);
-
-            setTimeout(() => {
-                setSuccessId('');
-                setFormData({
-                    name: '', phone: '', date: '', route: 'Golaghat -> Guwahati',
-                    seat: '', fare: '', departure: '06:00', arrival: '12:30'
-                });
-            }, 3000);
+            // Removed auto-clear to allow WhatsApp sharing
         } catch (error) {
             console.error(error);
             alert("Failed to create booking");
         }
+    };
+
+    const handleWhatsApp = () => {
+        if (!formData.phone || !successId) return;
+
+        // Clean phone number (remove spaces, etc.) - simple approach
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone; // Assume clear 10 digit needs 91
+
+        const message = `
+*Akasha Lavishlines - Ticket Confirmed* ✅
+--------------------------------
+*Ticket ID:* ${successId}
+*Passenger:* ${formData.name}
+*Route:* ${formData.route}
+*Date:* ${formData.date}
+*Time:* ${formData.departure}
+*Seat:* ${formData.seat}
+*Fare:* ₹${formData.fare}
+
+Thank you for choosing Akasha Lavishlines!
+        `.trim();
+
+        const url = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
+
+    const handleNewBooking = () => {
+        setSuccessId('');
+        setFormData({
+            name: '', phone: '', date: '', route: 'Golaghat -> Guwahati',
+            seat: '', fare: '', departure: '06:00', arrival: '12:30'
+        });
     };
 
     return (
@@ -103,7 +130,7 @@ const NewBooking = ({ onAddBooking }) => {
             </div>
 
             {successId && (
-                <div className="bg-green-500 text-white p-6 rounded-2xl shadow-lg shadow-green-500/20 flex items-center justify-between animate-scale-in">
+                <div className="bg-green-500 text-white p-6 rounded-2xl shadow-lg shadow-green-500/20 flex flex-col md:flex-row items-center justify-between gap-4 animate-scale-in">
                     <div className="flex items-center gap-4">
                         <div className="bg-white/20 p-2 rounded-full">
                             <CheckCircle className="w-6 h-6" />
@@ -113,7 +140,20 @@ const NewBooking = ({ onAddBooking }) => {
                             <p className="text-green-100 opacity-90">Ticket ID: <span className="font-mono font-bold bg-white/20 px-2 rounded">{successId}</span></p>
                         </div>
                     </div>
-                    <button onClick={() => setSuccessId('')} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleWhatsApp}
+                            className="flex items-center gap-2 bg-white text-green-600 px-4 py-2.5 rounded-xl font-bold hover:bg-green-50 transition-all shadow-sm active:scale-95"
+                        >
+                            <MessageCircle className="w-5 h-5" /> Share on WhatsApp
+                        </button>
+                        <button
+                            onClick={handleNewBooking}
+                            className="flex items-center gap-2 bg-green-600 text-white border border-green-400/30 px-4 py-2.5 rounded-xl font-bold hover:bg-green-700 transition-all active:scale-95"
+                        >
+                            <PlusCircle className="w-5 h-5" /> New Booking
+                        </button>
+                    </div>
                 </div>
             )}
 
