@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Save, X, User, Phone, MapPin, Calendar, Armchair, Clock, Printer, MessageCircle, PlusCircle } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { CheckCircle, Save, X, User, Phone, MapPin, Calendar, Armchair, Clock, Printer, MessageCircle, PlusCircle, Download, FileText } from 'lucide-react';
 
 const NewBooking = ({ onAddBooking }) => {
     const navigate = useNavigate();
+    const ticketRef = useRef(null);
 
     // Updated State with Departure/Arrival
     const [formData, setFormData] = useState({
@@ -90,8 +93,11 @@ const NewBooking = ({ onAddBooking }) => {
         const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone; // Assume clear 10 digit needs 91
 
         const message = `
-*Akasha Lavishlines - Ticket Confirmed* ✅
+*Akasha Lavishlines - 
+Congratulations!
+ Ticket Confirmed* ✅
 --------------------------------
+Here are your ticket details:
 *Ticket ID:* ${successId}
 *Passenger:* ${formData.name}
 *Route:* ${formData.route}
@@ -99,12 +105,42 @@ const NewBooking = ({ onAddBooking }) => {
 *Time:* ${formData.departure}
 *Seat:* ${formData.seat}
 *Fare:* ₹${formData.fare}
+Happy journey!
 
 Thank you for choosing Akasha Lavishlines!
         `.trim();
 
         const url = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
+    };
+
+    const handleDownloadImage = async () => {
+        if (!ticketRef.current) return;
+        try {
+            const canvas = await html2canvas(ticketRef.current, { scale: 2, useCORS: true });
+            const link = document.createElement('a');
+            link.download = `ticket-${successId || 'preview'}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (error) {
+            console.error("Image generation failed", error);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!ticketRef.current) return;
+        try {
+            const canvas = await html2canvas(ticketRef.current, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`ticket-${successId || 'preview'}.pdf`);
+        } catch (error) {
+            console.error("PDF generation failed", error);
+        }
     };
 
     const handleNewBooking = () => {
@@ -117,14 +153,20 @@ Thank you for choosing Akasha Lavishlines!
 
     return (
         <div className="max-w-6xl mx-auto animate-fade-in-up space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Issue New Ticket</h1>
                     <p className="text-slate-500 mt-1">Fill in the details to generate an instant offline ticket.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button onClick={handleDownloadPDF} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <FileText className="w-4 h-4" /> PDF
+                    </button>
+                    <button onClick={handleDownloadImage} className="px-4 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl font-medium hover:bg-indigo-100 transition-colors flex items-center gap-2">
+                        <Download className="w-4 h-4" /> Save Image
+                    </button>
                     <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
-                        <Printer className="w-4 h-4" /> Print Form
+                        <Printer className="w-4 h-4" /> Print
                     </button>
                 </div>
             </div>
@@ -140,12 +182,24 @@ Thank you for choosing Akasha Lavishlines!
                             <p className="text-green-100 opacity-90">Ticket ID: <span className="font-mono font-bold bg-white/20 px-2 rounded">{successId}</span></p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <button
                             onClick={handleWhatsApp}
                             className="flex items-center gap-2 bg-white text-green-600 px-4 py-2.5 rounded-xl font-bold hover:bg-green-50 transition-all shadow-sm active:scale-95"
                         >
                             <MessageCircle className="w-5 h-5" /> Share on WhatsApp
+                        </button>
+                        <button
+                            onClick={handleDownloadImage}
+                            className="flex items-center gap-2 bg-white text-indigo-600 px-4 py-2.5 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-sm active:scale-95"
+                        >
+                            <Download className="w-5 h-5" /> Save Image
+                        </button>
+                        <button
+                            onClick={handleDownloadPDF}
+                            className="flex items-center gap-2 bg-white text-slate-600 px-4 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                        >
+                            <FileText className="w-5 h-5" /> Download PDF
                         </button>
                         <button
                             onClick={handleNewBooking}
@@ -154,6 +208,9 @@ Thank you for choosing Akasha Lavishlines!
                             <PlusCircle className="w-5 h-5" /> New Booking
                         </button>
                     </div>
+                    <p className="text-xs text-green-100 mt-3 italic w-full text-right opacity-80">
+                        * Note: Auto-attachment is not supported. Please download the ticket and attach it manually in WhatsApp.
+                    </p>
                 </div>
             )}
 
@@ -291,7 +348,7 @@ Thank you for choosing Akasha Lavishlines!
 
                 {/* Right: Live Preview Ticket */}
                 <div className="lg:col-span-1">
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden h-fit sticky top-6 border border-slate-700">
+                    <div ref={ticketRef} className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden h-fit sticky top-6 border border-slate-700">
                         <div className="absolute top-0 right-0 p-8 opacity-10">
                             <img src="/logo.jpg" alt="logo" className="w-32 h-32 object-contain grayscale" />
                         </div>

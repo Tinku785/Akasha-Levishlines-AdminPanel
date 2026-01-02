@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, MoreHorizontal, Download, Calendar, MapPin, ChevronLeft, ChevronRight, SlidersHorizontal, CheckCircle2, Clock, X, Edit2, AlertCircle, Ban, Armchair, Phone } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Download, Calendar, MapPin, ChevronLeft, ChevronRight, SlidersHorizontal, CheckCircle2, Clock, X, Edit2, AlertCircle, Ban, Armchair, Phone, MessageCircle } from 'lucide-react';
 
 const Bookings = ({ bookings, onUpdateBooking, onCancelBooking }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -56,6 +56,33 @@ const Bookings = ({ bookings, onUpdateBooking, onCancelBooking }) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleWhatsAppShare = (booking) => {
+        if (!booking.phone) {
+            alert("No phone number available for this booking.");
+            return;
+        }
+
+        const cleanPhone = booking.phone.replace(/\D/g, '');
+        const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+        const message = `
+*Akasha Lavishlines - Ticket Details* 🚍
+--------------------------------
+*Ticket ID:* ${booking.id}
+*Passenger:* ${booking.name}
+*Route:* ${booking.route}
+*Date:* ${booking.date}
+*Time:* ${booking.departure}
+*Seat:* ${booking.seat}
+*Fare:* ₹${booking.fare}
+
+Safe travels!
+        `.trim();
+
+        const url = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
     };
 
     const StatusBadge = ({ status = 'Confirmed' }) => {
@@ -324,6 +351,14 @@ const Bookings = ({ bookings, onUpdateBooking, onCancelBooking }) => {
                                             {activeActionId === b.id && (
                                                 <div className="absolute right-10 top-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-scale-in origin-top-right">
                                                     <div className="p-1">
+                                                        <button
+                                                            onClick={() => handleWhatsAppShare(b)}
+                                                            className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg flex items-center gap-2 font-medium"
+                                                            title="Send details to the passenger"
+                                                        >
+                                                            <MessageCircle className="w-4 h-4" /> Share on WhatsApp
+                                                        </button>
+                                                        <div className="h-px bg-slate-100 my-1"></div>
                                                         <button
                                                             onClick={() => handleEditClick(b)}
                                                             className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-2 font-medium"
