@@ -340,12 +340,21 @@ Safe travels!
                                             <span className="text-sm font-bold text-slate-800">₹{b.fare}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                                            <button
-                                                onClick={() => setActiveActionId(activeActionId === b.id ? null : b.id)}
-                                                className={`text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors ${activeActionId === b.id ? 'bg-slate-100 text-slate-900' : ''}`}
-                                            >
-                                                <MoreHorizontal className="w-5 h-5" />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleWhatsAppShare(b)}
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-lg"
+                                                    title="Send details to passenger"
+                                                >
+                                                    <MessageCircle className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setActiveActionId(activeActionId === b.id ? null : b.id)}
+                                                    className={`text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors ${activeActionId === b.id ? 'bg-slate-100 text-slate-900' : ''}`}
+                                                >
+                                                    <MoreHorizontal className="w-5 h-5" />
+                                                </button>
+                                            </div>
 
                                             {/* Dropdown Menu */}
                                             {activeActionId === b.id && (
