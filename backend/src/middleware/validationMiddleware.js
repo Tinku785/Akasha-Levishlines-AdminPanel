@@ -13,8 +13,7 @@ export const validateBooking = [
     body('mainPassengerName')
         .trim()
         .notEmpty().withMessage('Main passenger name is required')
-        .isLength({ min: 3 }).withMessage('Name must be at least 3 characters long')
-        .escape(),
+        .isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
 
     body('phone')
         .trim()
@@ -29,8 +28,7 @@ export const validateBooking = [
 
     body('route')
         .trim()
-        .notEmpty().withMessage('Route is required')
-        .escape(),
+        .notEmpty().withMessage('Route is required'),
 
     body('departureTime')
         .trim()
@@ -45,8 +43,7 @@ export const validateBooking = [
 
     body('passengers.*.name')
         .trim()
-        .notEmpty().withMessage('Passenger name is required')
-        .escape(),
+        .notEmpty().withMessage('Passenger name is required'),
 
     body('passengers.*.seat')
         .trim()
@@ -64,8 +61,7 @@ export const validateBookingUpdate = [
         .optional()
         .trim()
         .notEmpty().withMessage('Main passenger name cannot be empty')
-        .isLength({ min: 3 }).withMessage('Name must be at least 3 characters long')
-        .escape(),
+        .isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
 
     body('phone')
         .optional()
@@ -81,8 +77,7 @@ export const validateBookingUpdate = [
     body('route')
         .optional()
         .trim()
-        .notEmpty().withMessage('Route cannot be empty')
-        .escape(),
+        .notEmpty().withMessage('Route cannot be empty'),
 
     body('departureTime')
         .optional()
@@ -101,8 +96,7 @@ export const validateBookingUpdate = [
     body('passengers.*.name')
         .optional()
         .trim()
-        .notEmpty().withMessage('Passenger name is required')
-        .escape(),
+        .notEmpty().withMessage('Passenger name is required'),
 
     body('passengers.*.seat')
         .optional()

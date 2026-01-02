@@ -68,17 +68,22 @@ const Bookings = ({ bookings, onUpdateBooking, onCancelBooking }) => {
         const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
 
         const message = `
-*Akasha Lavishlines - Ticket Details* 🚍
---------------------------------
-*Ticket ID:* ${booking.id}
-*Passenger:* ${booking.name}
-*Route:* ${booking.route}
-*Date:* ${booking.date}
-*Time:* ${booking.departure}
-*Seat:* ${booking.seat}
-*Fare:* ₹${booking.fare}
 
-Safe travels!
+Congratulations, ${booking.name}! 
+🎉 Your journey with Akasha Lavishlines is confirmed! 🚍
+--------------------------------
+*Here are your ticket details:*
+
+🎟️*Ticket ID:* ${booking.id}
+*Passenger:* ${booking.name}
+*Route:* ${booking.route.replace(/&gt;/g, '>').replace(/->/g, ' -> ')}
+*Date:* ${booking.date}
+⏰*Time:* ${booking.departure}
+앉️*Seat:* ${booking.seat}
+💰*Fare:* ₹${booking.fare}
+
+Thank you for choosing Akasha Lavishlines.
+Safe travels!✨
         `.trim();
 
         const url = `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
@@ -314,7 +319,15 @@ Safe travels!
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
                                                     <MapPin className="w-3.5 h-3.5 text-yellow-500" />
-                                                    {b.route.split('->')[0]} <span className="text-slate-300">→</span> {b.route.split('->')[1]}
+                                                    {(() => {
+                                                        const cleanRoute = b.route.replace(/&gt;/g, '>').replace(/->/g, '>');
+                                                        const parts = cleanRoute.split('>').map(s => s.trim());
+                                                        return (
+                                                            <>
+                                                                {parts[0]} <span className="text-slate-300">→</span> {parts[1] || ''}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
                                                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
